@@ -41,24 +41,25 @@ html, body {
   height: 100dvh;
   position: relative;
   overflow: hidden;
+  justify-content: space-between;
 }
 
 /* Header */
 .game-header {
   flex-shrink: 0;
-  height: 44px;
+  height: 42px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
-  background: rgba(10, 18, 10, 0.85);
+  padding: 0 14px;
+  background: rgba(10, 18, 10, 0.88);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border-color);
   z-index: 10;
 }
 
 .game-title {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.5px;
   color: #86efac;
@@ -67,16 +68,16 @@ html, body {
 
 .header-actions {
   display: flex;
-  gap: 8px;
+  gap: 6px;
 }
 
 .hud-btn {
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid var(--border-color);
   color: #dcfce7;
-  padding: 4px 10px;
+  padding: 4px 8px;
   border-radius: 6px;
-  font-size: 12px;
+  font-size: 11px;
   font-family: inherit;
   font-weight: 600;
   cursor: pointer;
@@ -99,12 +100,13 @@ html, body {
 /* Canvas Area */
 .canvas-wrapper {
   flex: 1;
+  min-height: 0;
   display: flex;
   justify-content: center;
   align-items: center;
   position: relative;
-  min-height: 0;
-  padding: 4px;
+  padding: 6px;
+  overflow: hidden;
 }
 
 canvas#game {
@@ -121,11 +123,11 @@ canvas#game {
 
 /* Touch Controls Deck */
 .touch-controls {
-  display: none; /* Controlled by JS and media queries */
+  display: none;
   flex-shrink: 0;
   width: 100%;
-  padding: 10px 16px env(safe-area-inset-bottom, 12px);
-  background: linear-gradient(180deg, rgba(8, 14, 8, 0.6) 0%, rgba(6, 10, 6, 0.95) 100%);
+  padding: 8px 12px env(safe-area-inset-bottom, 10px);
+  background: linear-gradient(180deg, rgba(8, 14, 8, 0.75) 0%, rgba(6, 10, 6, 0.98) 100%);
   border-top: 1px solid var(--border-color);
   backdrop-filter: blur(12px);
   justify-content: space-between;
@@ -141,12 +143,12 @@ canvas#game {
 .touch-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 }
 
 .joystick-zone {
-  width: 124px;
-  height: 124px;
+  width: 110px;
+  height: 110px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -154,10 +156,10 @@ canvas#game {
 }
 
 .joystick-base {
-  width: 110px;
-  height: 110px;
+  width: 96px;
+  height: 96px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(34, 197, 94, 0.1) 0%, rgba(16, 32, 16, 0.6) 70%, rgba(34, 197, 94, 0.25) 100%);
+  background: radial-gradient(circle, rgba(34, 197, 94, 0.12) 0%, rgba(16, 32, 16, 0.7) 70%, rgba(34, 197, 94, 0.3) 100%);
   border: 2px solid rgba(74, 222, 128, 0.35);
   box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.6), 0 4px 12px rgba(0, 0, 0, 0.4);
   display: flex;
@@ -168,22 +170,22 @@ canvas#game {
 
 .joystick-base::after {
   content: '';
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  background: rgba(74, 222, 128, 0.3);
+  background: rgba(74, 222, 128, 0.35);
   position: absolute;
 }
 
 .joystick-knob {
-  width: 48px;
-  height: 48px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   background: radial-gradient(circle at 35% 35%, #4ade80, #16a34a 65%, #14532d 100%);
-  border: 2px solid rgba(255, 255, 255, 0.6);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7), 0 0 12px rgba(34, 197, 94, 0.5);
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.7), 0 0 10px rgba(34, 197, 94, 0.5);
   position: relative;
-  transition: transform 0.05s ease-out;
+  transition: transform 0.04s ease-out;
   pointer-events: none;
 }
 
@@ -210,22 +212,22 @@ canvas#game {
 }
 
 .btn-icon {
-  font-size: 20px;
+  font-size: 18px;
   line-height: 1;
 }
 
 .btn-text {
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-top: 2px;
+  margin-top: 1px;
 }
 
 /* Sprint Button */
 .btn-sprint {
-  width: 50px;
-  height: 50px;
+  width: 44px;
+  height: 44px;
   border-radius: 12px;
   background: rgba(22, 40, 22, 0.85);
   border: 1.5px solid rgba(74, 222, 128, 0.3);
@@ -243,81 +245,81 @@ canvas#game {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 10px;
+  gap: 8px;
 }
 
 .craft-row {
   display: flex;
-  gap: 8px;
+  gap: 6px;
 }
 
 .btn-craft {
   width: auto;
-  height: 34px;
-  padding: 0 12px;
-  border-radius: 17px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 14px;
   flex-direction: row;
-  gap: 5px;
+  gap: 4px;
   background: rgba(26, 42, 26, 0.85);
   border: 1px solid rgba(74, 222, 128, 0.3);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
-.btn-craft .btn-icon { font-size: 14px; }
-.btn-craft .btn-text { font-size: 11px; margin-top: 0; color: #86efac; }
+.btn-craft .btn-icon { font-size: 13px; }
+.btn-craft .btn-text { font-size: 10px; margin-top: 0; color: #86efac; }
 
 .actions-row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 }
 
 /* Attack Button (Hero) */
 .btn-attack {
-  width: 68px;
-  height: 68px;
+  width: 60px;
+  height: 60px;
   background: radial-gradient(circle at 35% 35%, #22c55e, #15803d 70%, #14532d);
-  border: 2.5px solid rgba(255, 255, 255, 0.75);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.7), 0 0 16px rgba(34, 197, 94, 0.6);
+  border: 2px solid rgba(255, 255, 255, 0.75);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7), 0 0 14px rgba(34, 197, 94, 0.5);
 }
 
-.btn-attack .btn-icon { font-size: 26px; }
-.btn-attack .btn-text { font-size: 10px; color: #f0fdf4; }
+.btn-attack .btn-icon { font-size: 24px; }
+.btn-attack .btn-text { font-size: 9px; color: #f0fdf4; }
 
 /* Use / Interact Button */
 .btn-use {
-  width: 54px;
-  height: 54px;
+  width: 48px;
+  height: 48px;
   background: radial-gradient(circle at 35% 35%, #0284c7, #0369a1 70%, #075985);
-  border: 2px solid rgba(255, 255, 255, 0.6);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.6), 0 0 12px rgba(2, 132, 199, 0.4);
+  border: 1.5px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.6), 0 0 10px rgba(2, 132, 199, 0.4);
 }
 
-.btn-use .btn-icon { font-size: 22px; }
+.btn-use .btn-icon { font-size: 20px; }
 
 /* Eat Button */
 .btn-eat {
-  width: 50px;
-  height: 50px;
+  width: 44px;
+  height: 44px;
   background: radial-gradient(circle at 35% 35%, #d97706, #b45309 70%, #78350f);
   border: 1.5px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.6), 0 0 10px rgba(217, 119, 6, 0.35);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.6), 0 0 8px rgba(217, 119, 6, 0.35);
 }
 
-.btn-eat .btn-icon { font-size: 20px; }
+.btn-eat .btn-icon { font-size: 18px; }
 
 /* Landscape Mobile Overlay Mode */
 @media (orientation: landscape) and (max-height: 600px) {
   .game-header {
-    height: 36px;
-    padding: 0 12px;
+    height: 34px;
+    padding: 0 10px;
   }
   .game-title {
-    font-size: 13px;
+    font-size: 12px;
   }
   .hud-btn {
-    padding: 2px 8px;
-    font-size: 11px;
+    padding: 2px 6px;
+    font-size: 10px;
   }
   .canvas-wrapper {
     padding: 0;
@@ -336,67 +338,71 @@ canvas#game {
     border-top: none !important;
     backdrop-filter: none !important;
     pointer-events: none;
-    padding: 8px 18px env(safe-area-inset-bottom, 10px);
+    padding: 6px 14px env(safe-area-inset-bottom, 8px);
   }
   .touch-left, .touch-right {
     pointer-events: auto;
   }
   .joystick-zone {
-    width: 110px;
-    height: 110px;
-  }
-  .joystick-base {
     width: 96px;
     height: 96px;
-    background: radial-gradient(circle, rgba(16, 32, 16, 0.7) 0%, rgba(6, 12, 6, 0.85) 100%);
+  }
+  .joystick-base {
+    width: 86px;
+    height: 86px;
+    background: radial-gradient(circle, rgba(16, 32, 16, 0.75) 0%, rgba(6, 12, 6, 0.9) 100%);
   }
   .joystick-knob {
-    width: 42px;
-    height: 42px;
+    width: 38px;
+    height: 38px;
   }
   .btn-sprint {
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
   }
   .btn-attack {
-    width: 60px;
-    height: 60px;
+    width: 54px;
+    height: 54px;
   }
   .btn-use {
-    width: 48px;
-    height: 48px;
-  }
-  .btn-eat {
     width: 44px;
     height: 44px;
   }
-  .craft-row {
-    gap: 6px;
+  .btn-eat {
+    width: 40px;
+    height: 40px;
   }
   .btn-craft {
-    height: 30px;
-    padding: 0 10px;
+    height: 26px;
+    padding: 0 8px;
   }
 }
 
 /* Portrait Mobile Optimization */
 @media (max-width: 768px) and (orientation: portrait) {
   .game-container {
-    justify-content: flex-start;
+    height: 100vh;
+    height: 100dvh;
+    justify-content: space-between;
   }
   .canvas-wrapper {
-    flex: 0 0 auto;
+    flex: 1;
+    min-height: 0;
     width: 100%;
-    max-height: 48vh;
-    padding: 6px 10px;
+    padding: 6px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
   canvas#game {
-    width: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
     height: auto;
   }
   .touch-controls.visible {
-    flex: 1;
+    flex-shrink: 0;
     display: flex !important;
-    padding: 8px 12px env(safe-area-inset-bottom, 12px);
+    padding: 6px 10px env(safe-area-inset-bottom, 8px);
   }
 }
