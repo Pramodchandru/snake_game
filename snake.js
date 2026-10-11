@@ -20,6 +20,8 @@ let elapsed, msg, msgTimer, cause, kills, swing, spawnTimer, lastTime = 0;
 const keys = {};
 let best = getBest();
 const cam = { x: 0, y: 0 };
+const touchJoy = { active: false, dx: 0, dy: 0, sprint: false };
+let sprintHeld = false;
 
 function getBest() {
   try { return Number(localStorage.getItem("pramodBest")) || 0; } catch (e) { return 0; }
@@ -208,13 +210,17 @@ function update(dt) {
   if (keys["arrowright"] || keys["d"]) dx += 1;
   if (keys["arrowup"] || keys["w"]) dy -= 1;
   if (keys["arrowdown"] || keys["s"]) dy += 1;
+  if (touchJoy.active) {
+    dx += touchJoy.dx;
+    dy += touchJoy.dy;
+  }
   const moving = dx || dy;
   let sprint = false;
   if (moving) {
     const len = Math.hypot(dx, dy);
     dx /= len; dy /= len;
     p.dx = dx; p.dy = dy;
-    sprint = !!keys["shift"] && p.stamina > 0 && !p.tired;
+    sprint = (!!keys["shift"] || sprintHeld || touchJoy.sprint) && p.stamina > 0 && !p.tired;
   }
   if (sprint) {
     p.stamina = Math.max(0, p.stamina - 30 * dt);
@@ -558,31 +564,31 @@ function draw() {
     overlay(NAME + ": Island Survival", [
       "You are stranded on an island. Rescue arrives in " + DAYS_TO_WIN + " days.",
       "",
-      "Move: WASD / arrows     Sprint: hold Shift",
-      "Use / gather / drink / cook: E     Attack: Space or click",
-      "Eat: F     Craft: 1 (spear), 2 (campfire)     Pause: P",
+      "Move: WASD / Arrows / Touch Joystick",
+      "Use / gather / drink: E or [Use]     Attack: Space / Click or [Attack]",
+      "Eat: F or [Eat]     Craft: [Spear] / [Fire]     Pause: P",
       "",
       "Chop trees, mine rocks, pick berries, drink from lakes.",
       "Hunt rabbits and cook the meat on a campfire.",
-      "At night zombies attack. Stay near a fire, it keeps them away.",
+      "At night zombies attack. Stay near a fire to keep them away.",
       "",
-      "Press Enter to start"
+      "Tap Screen or Press Enter to Start"
     ]);
   } else if (state === "paused") {
-    overlay("Paused", ["Press P to resume"]);
+    overlay("Paused", ["Press P or Tap Pause to resume"]);
   } else if (state === "won") {
     overlay("Rescued!", [
       NAME + " survived " + DAYS_TO_WIN + " days.",
       "Zombies defeated: " + kills,
       "",
-      "Press Enter to play again"
+      "Tap Screen or Press Enter to play again"
     ]);
   } else if (state === "lost") {
     overlay(NAME + " didn't make it", [
       NAME + " " + cause + " on day " + dayNumber() + ".",
       "Survived " + formatTime(elapsed) + "   Zombies defeated: " + kills,
       "",
-      "Press Enter to try again"
+      "Tap Screen or Press Enter to try again"
     ]);
   }
 }
@@ -616,13 +622,208 @@ document.addEventListener("keydown", (e) => {
 });
 document.addEventListener("keyup", (e) => { keys[e.key.toLowerCase()] = false; });
 window.addEventListener("blur", () => { for (const k in keys) keys[k] = false; });
-canvas.addEventListener("pointerdown", () => {
-  if (state === "menu" || state === "won" || state === "lost") startGame();
-  else attack();
+canvas.addEventListener("pointerdown", (e) => {
+  if (state === "menu" || state === "won" || state === "lost") {
+    startGame();
+  } else if (state === "playing") {
+    // Only attack if not clicking on UI controls
+    attack();
+  }
 });
 
 // Holding Space attacks repeatedly (cooldown limits the speed)
 setInterval(() => { if (keys[" "] && state === "playing") attack(); }, 50);
+
+// ---------- Mobile Touch & Virtual Joystick Setup ----------
+function initTouchControls() {
+  const touchControls = document.getElementById("touch-controls");
+  const toggleTouchBtn = document.getElementById("btn-toggle-touch");
+  const pauseHeaderBtn = document.getElementById("btn-pause-header");
+  const fullscreenBtn = document.getElementById("btn-fullscreen");
+  const joystickZone = document.getElementById("joystick-zone");
+  const joystickBase = document.getElementById("joystick-base");
+  const joystickKnob = document.getElementById("joystick-knob");
+  const sprintBtn = document.getElementById("btn-sprint");
+
+  const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (window.innerWidth <= 1024);
+  if (touchControls && isTouchDevice) {
+    touchControls.classList.add("visible");
+  }
+
+  if (toggleTouchBtn && touchControls) {
+    toggleTouchBtn.addEventListener("click", () => {
+      touchControls.classList.toggle("visible");
+    });
+  }
+
+  if (pauseHeaderBtn) {
+    pauseHeaderBtn.addEventListener("click", () => {
+      if (state === "playing") state = "paused";
+      else if (state === "paused") state = "playing";
+    });
+  }
+
+  if (fullscreenBtn) {
+    fullscreenBtn.addEventListener("click", () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    });
+  }
+
+  // Virtual Joystick
+  let joyId = null;
+  let baseCenter = { x: 0, y: 0 };
+  const maxRadius = 38;
+
+  function resetJoy() {
+    joyId = null;
+    touchJoy.active = false;
+    touchJoy.dx = 0;
+    touchJoy.dy = 0;
+    touchJoy.sprint = false;
+    if (joystickKnob) {
+      joystickKnob.style.transform = "translate(0px, 0px)";
+    }
+  }
+
+  if (joystickZone && joystickBase && joystickKnob) {
+    const onJoyStart = (e) => {
+      e.preventDefault();
+      if (joyId !== null) return;
+      const t = e.changedTouches ? e.changedTouches[0] : e;
+      joyId = t.identifier !== undefined ? t.identifier : 'mouse';
+      const rect = joystickBase.getBoundingClientRect();
+      baseCenter = {
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2
+      };
+      onJoyMove(e);
+    };
+
+    const onJoyMove = (e) => {
+      if (joyId === null) return;
+      e.preventDefault();
+      let t = null;
+      if (e.changedTouches) {
+        for (let i = 0; i < e.changedTouches.length; i++) {
+          if (e.changedTouches[i].identifier === joyId) {
+            t = e.changedTouches[i];
+            break;
+          }
+        }
+      } else {
+        t = e;
+      }
+      if (!t) return;
+
+      const diffX = t.clientX - baseCenter.x;
+      const diffY = t.clientY - baseCenter.y;
+      const dist = Math.hypot(diffX, diffY);
+      const angle = Math.atan2(diffY, diffX);
+      const clamped = Math.min(dist, maxRadius);
+
+      const kx = Math.cos(angle) * clamped;
+      const ky = Math.sin(angle) * clamped;
+      joystickKnob.style.transform = `translate(${kx}px, ${ky}px)`;
+
+      if (dist > 6) {
+        touchJoy.active = true;
+        touchJoy.dx = diffX / dist;
+        touchJoy.dy = diffY / dist;
+        touchJoy.sprint = (dist >= maxRadius - 4);
+      } else {
+        touchJoy.active = false;
+        touchJoy.dx = 0;
+        touchJoy.dy = 0;
+        touchJoy.sprint = false;
+      }
+    };
+
+    const onJoyEnd = (e) => {
+      if (joyId === null) return;
+      if (e.changedTouches) {
+        for (let i = 0; i < e.changedTouches.length; i++) {
+          if (e.changedTouches[i].identifier === joyId) {
+            resetJoy();
+            break;
+          }
+        }
+      } else {
+        resetJoy();
+      }
+    };
+
+    joystickZone.addEventListener("touchstart", onJoyStart, { passive: false });
+    window.addEventListener("touchmove", onJoyMove, { passive: false });
+    window.addEventListener("touchend", onJoyEnd, { passive: false });
+    window.addEventListener("touchcancel", onJoyEnd, { passive: false });
+
+    // Desktop mouse testing
+    joystickZone.addEventListener("mousedown", onJoyStart);
+    window.addEventListener("mousemove", (e) => { if (joyId === 'mouse') onJoyMove(e); });
+    window.addEventListener("mouseup", (e) => { if (joyId === 'mouse') resetJoy(); });
+  }
+
+  // Sprint Button
+  if (sprintBtn) {
+    const setSprint = (val) => {
+      sprintHeld = val;
+      sprintBtn.classList.toggle("active", val);
+    };
+    sprintBtn.addEventListener("touchstart", (e) => { e.preventDefault(); setSprint(!sprintHeld); }, { passive: false });
+    sprintBtn.addEventListener("click", () => { setSprint(!sprintHeld); });
+  }
+
+  // Action Buttons
+  function bindTouchBtn(id, fn, canRepeat) {
+    const btn = document.getElementById(id);
+    if (!btn) return;
+    let repeatTimer = null;
+
+    const trigger = (e) => {
+      e.preventDefault();
+      if (navigator.vibrate) try { navigator.vibrate(12); } catch (err) {}
+      if (state === "menu" || state === "won" || state === "lost") {
+        startGame();
+        return;
+      }
+      fn();
+    };
+
+    btn.addEventListener("touchstart", (e) => {
+      trigger(e);
+      if (canRepeat) {
+        repeatTimer = setInterval(() => {
+          if (state === "playing") fn();
+        }, 80);
+      }
+    }, { passive: false });
+
+    btn.addEventListener("touchend", (e) => {
+      e.preventDefault();
+      if (repeatTimer) { clearInterval(repeatTimer); repeatTimer = null; }
+    }, { passive: false });
+
+    btn.addEventListener("touchcancel", () => {
+      if (repeatTimer) { clearInterval(repeatTimer); repeatTimer = null; }
+    });
+
+    btn.addEventListener("click", (e) => {
+      trigger(e);
+    });
+  }
+
+  bindTouchBtn("btn-attack", attack, true);
+  bindTouchBtn("btn-use", interact, false);
+  bindTouchBtn("btn-eat", eat, false);
+  bindTouchBtn("btn-craft-spear", () => craft(1), false);
+  bindTouchBtn("btn-craft-fire", () => craft(2), false);
+}
+
+initTouchControls();
 
 resetGame();
 requestAnimationFrame(loop);

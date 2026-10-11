@@ -2,14 +2,80 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0a0f0a">
+  <meta name="description" content="Pramod: Island Survival - A 2D survival adventure game playable on desktop and mobile.">
   <title>Pramod: Island Survival</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="snake.css">
 </head>
 <body>
-  <main class="app">
-    <canvas id="game" width="800" height="560"></canvas>
-  </main>
+  <div class="game-container" id="game-container">
+    <header class="game-header">
+      <div class="game-title">🏝️ Pramod: Island Survival</div>
+      <div class="header-actions">
+        <button id="btn-toggle-touch" class="hud-btn" type="button" title="Toggle On-Screen Controls">📱 Touch UI</button>
+        <button id="btn-pause-header" class="hud-btn" type="button" title="Pause Game">⏸️ Pause</button>
+        <button id="btn-fullscreen" class="hud-btn" type="button" title="Fullscreen">⛶</button>
+      </div>
+    </header>
+
+    <div class="canvas-wrapper" id="canvas-wrapper">
+      <canvas id="game" width="800" height="560"></canvas>
+    </div>
+
+    <!-- On-Screen Mobile Touch Deck -->
+    <div id="touch-controls" class="touch-controls">
+      <!-- Left side: Virtual Joystick & Sprint -->
+      <div class="touch-left">
+        <div id="joystick-zone" class="joystick-zone">
+          <div id="joystick-base" class="joystick-base">
+            <div id="joystick-knob" class="joystick-knob"></div>
+          </div>
+        </div>
+        <button id="btn-sprint" class="touch-btn btn-sprint" type="button">
+          <span class="btn-icon">🏃</span>
+          <span class="btn-text">Sprint</span>
+        </button>
+      </div>
+
+      <!-- Right side: Actions & Crafting -->
+      <div class="touch-right">
+        <!-- Quick Crafting Row -->
+        <div class="craft-row">
+          <button id="btn-craft-spear" class="touch-btn btn-craft" type="button" title="Craft Spear (3 wood, 2 stone)">
+            <span class="btn-icon">🗡️</span>
+            <span class="btn-text">Spear</span>
+          </button>
+          <button id="btn-craft-fire" class="touch-btn btn-craft" type="button" title="Campfire (5 wood)">
+            <span class="btn-icon">🪵</span>
+            <span class="btn-text">Fire</span>
+          </button>
+        </div>
+
+        <!-- Main Actions Row -->
+        <div class="actions-row">
+          <button id="btn-eat" class="touch-btn btn-eat" type="button" title="Eat (F)">
+            <span class="btn-icon">🍖</span>
+            <span class="btn-text">Eat</span>
+          </button>
+          <button id="btn-use" class="touch-btn btn-use" type="button" title="Gather / Drink / Use (E)">
+            <span class="btn-icon">🖐️</span>
+            <span class="btn-text">Use</span>
+          </button>
+          <button id="btn-attack" class="touch-btn btn-attack" type="button" title="Attack (Space)">
+            <span class="btn-icon">⚔️</span>
+            <span class="btn-text">Attack</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="snake.js"></script>
 </body>
 </html>

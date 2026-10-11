@@ -1,19 +1,402 @@
-* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg-primary: #070d07;
+  --bg-card: rgba(16, 28, 16, 0.75);
+  --border-color: rgba(74, 222, 128, 0.2);
+  --border-active: rgba(74, 222, 128, 0.6);
+  --accent-green: #22c55e;
+  --accent-blue: #38bdf8;
+  --accent-amber: #f59e0b;
+  --accent-red: #ef4444;
+  --text-main: #f0fdf4;
+  --text-muted: #86efac;
+}
 
-body {
-  background: #0a0f0a;
-  min-height: 100vh;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--bg-primary);
+  background-image: 
+    radial-gradient(circle at 50% 20%, rgba(34, 197, 94, 0.08), transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.05), transparent 40%);
+  color: var(--text-main);
+  font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+.game-container {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Header */
+.game-header {
+  flex-shrink: 0;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  background: rgba(10, 18, 10, 0.85);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border-color);
+  z-index: 10;
+}
+
+.game-title {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #86efac;
+  text-shadow: 0 0 10px rgba(34, 197, 94, 0.3);
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.hud-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-color);
+  color: #dcfce7;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.hud-btn:hover {
+  background: rgba(34, 197, 94, 0.2);
+  border-color: var(--border-active);
+  color: #fff;
+}
+
+.hud-btn:active {
+  transform: scale(0.96);
+}
+
+/* Canvas Area */
+.canvas-wrapper {
+  flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative;
+  min-height: 0;
+  padding: 4px;
 }
 
-.app { display: flex; justify-content: center; width: 100%; }
-
-canvas {
+canvas#game {
   max-width: 100%;
-  max-height: 100vh;
+  max-height: 100%;
   aspect-ratio: 800 / 560;
-  border: 2px solid #1f3a1f;
-  border-radius: 6px;
+  border: 2px solid rgba(34, 197, 94, 0.3);
+  border-radius: 8px;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.8), 0 0 15px rgba(34, 197, 94, 0.15);
+  background: #0d160d;
+  display: block;
+  touch-action: none;
+}
+
+/* Touch Controls Deck */
+.touch-controls {
+  display: none; /* Controlled by JS and media queries */
+  flex-shrink: 0;
+  width: 100%;
+  padding: 10px 16px env(safe-area-inset-bottom, 12px);
+  background: linear-gradient(180deg, rgba(8, 14, 8, 0.6) 0%, rgba(6, 10, 6, 0.95) 100%);
+  border-top: 1px solid var(--border-color);
+  backdrop-filter: blur(12px);
+  justify-content: space-between;
+  align-items: center;
+  z-index: 20;
+}
+
+.touch-controls.visible {
+  display: flex !important;
+}
+
+/* Left: Joystick + Sprint */
+.touch-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.joystick-zone {
+  width: 124px;
+  height: 124px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  touch-action: none;
+}
+
+.joystick-base {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(34, 197, 94, 0.1) 0%, rgba(16, 32, 16, 0.6) 70%, rgba(34, 197, 94, 0.25) 100%);
+  border: 2px solid rgba(74, 222, 128, 0.35);
+  box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.6), 0 4px 12px rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.joystick-base::after {
+  content: '';
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(74, 222, 128, 0.3);
+  position: absolute;
+}
+
+.joystick-knob {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #4ade80, #16a34a 65%, #14532d 100%);
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7), 0 0 12px rgba(34, 197, 94, 0.5);
+  position: relative;
+  transition: transform 0.05s ease-out;
+  pointer-events: none;
+}
+
+/* Touch Buttons General */
+.touch-btn {
+  font-family: inherit;
+  border: none;
+  outline: none;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+  transition: transform 0.08s ease, filter 0.1s ease, box-shadow 0.1s ease;
+}
+
+.touch-btn:active, .touch-btn.active {
+  transform: scale(0.90) !important;
+  filter: brightness(1.25);
+}
+
+.btn-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.btn-text {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+
+/* Sprint Button */
+.btn-sprint {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  background: rgba(22, 40, 22, 0.85);
+  border: 1.5px solid rgba(74, 222, 128, 0.3);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+}
+
+.btn-sprint.active {
+  background: rgba(34, 197, 94, 0.35);
+  border-color: #4ade80;
+  box-shadow: 0 0 14px rgba(34, 197, 94, 0.6);
+}
+
+/* Right: Actions */
+.touch-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.craft-row {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-craft {
+  width: auto;
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 17px;
+  flex-direction: row;
+  gap: 5px;
+  background: rgba(26, 42, 26, 0.85);
+  border: 1px solid rgba(74, 222, 128, 0.3);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.btn-craft .btn-icon { font-size: 14px; }
+.btn-craft .btn-text { font-size: 11px; margin-top: 0; color: #86efac; }
+
+.actions-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Attack Button (Hero) */
+.btn-attack {
+  width: 68px;
+  height: 68px;
+  background: radial-gradient(circle at 35% 35%, #22c55e, #15803d 70%, #14532d);
+  border: 2.5px solid rgba(255, 255, 255, 0.75);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.7), 0 0 16px rgba(34, 197, 94, 0.6);
+}
+
+.btn-attack .btn-icon { font-size: 26px; }
+.btn-attack .btn-text { font-size: 10px; color: #f0fdf4; }
+
+/* Use / Interact Button */
+.btn-use {
+  width: 54px;
+  height: 54px;
+  background: radial-gradient(circle at 35% 35%, #0284c7, #0369a1 70%, #075985);
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.6), 0 0 12px rgba(2, 132, 199, 0.4);
+}
+
+.btn-use .btn-icon { font-size: 22px; }
+
+/* Eat Button */
+.btn-eat {
+  width: 50px;
+  height: 50px;
+  background: radial-gradient(circle at 35% 35%, #d97706, #b45309 70%, #78350f);
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.6), 0 0 10px rgba(217, 119, 6, 0.35);
+}
+
+.btn-eat .btn-icon { font-size: 20px; }
+
+/* Landscape Mobile Overlay Mode */
+@media (orientation: landscape) and (max-height: 600px) {
+  .game-header {
+    height: 36px;
+    padding: 0 12px;
+  }
+  .game-title {
+    font-size: 13px;
+  }
+  .hud-btn {
+    padding: 2px 8px;
+    font-size: 11px;
+  }
+  .canvas-wrapper {
+    padding: 0;
+  }
+  canvas#game {
+    border-radius: 0;
+    border-top: none;
+    border-bottom: none;
+  }
+  .touch-controls.visible {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: transparent !important;
+    border-top: none !important;
+    backdrop-filter: none !important;
+    pointer-events: none;
+    padding: 8px 18px env(safe-area-inset-bottom, 10px);
+  }
+  .touch-left, .touch-right {
+    pointer-events: auto;
+  }
+  .joystick-zone {
+    width: 110px;
+    height: 110px;
+  }
+  .joystick-base {
+    width: 96px;
+    height: 96px;
+    background: radial-gradient(circle, rgba(16, 32, 16, 0.7) 0%, rgba(6, 12, 6, 0.85) 100%);
+  }
+  .joystick-knob {
+    width: 42px;
+    height: 42px;
+  }
+  .btn-sprint {
+    width: 44px;
+    height: 44px;
+  }
+  .btn-attack {
+    width: 60px;
+    height: 60px;
+  }
+  .btn-use {
+    width: 48px;
+    height: 48px;
+  }
+  .btn-eat {
+    width: 44px;
+    height: 44px;
+  }
+  .craft-row {
+    gap: 6px;
+  }
+  .btn-craft {
+    height: 30px;
+    padding: 0 10px;
+  }
+}
+
+/* Portrait Mobile Optimization */
+@media (max-width: 768px) and (orientation: portrait) {
+  .game-container {
+    justify-content: flex-start;
+  }
+  .canvas-wrapper {
+    flex: 0 0 auto;
+    width: 100%;
+    max-height: 48vh;
+    padding: 6px 10px;
+  }
+  canvas#game {
+    width: 100%;
+    height: auto;
+  }
+  .touch-controls.visible {
+    flex: 1;
+    display: flex !important;
+    padding: 8px 12px env(safe-area-inset-bottom, 12px);
+  }
 }
